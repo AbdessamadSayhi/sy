@@ -8,11 +8,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-
-#[Route('todo', name: 'default_todo')]
 class TodosController extends AbstractController
 {
-    #[Route('/', name: 'list_todo')]
+    #[Route('todo', name: 'list_todo')]
     public function index(Request $request): Response
     {
         $session = $request->getSession();
@@ -23,69 +21,66 @@ class TodosController extends AbstractController
                 'Health' => 'Exercise every 3 days',
             ];
             $session->set('todos', $todos);
+            $this->addFlash('success', "La liste des Todos a été initialisée avec succès");
         }
-
-        return $this->render(
-            'todos/index.html.twig',
-            [
-                'controller_name' => 'TodosController',
-            ]
-        );
+        return $this->render('todos/index.html.twig', [
+            'controller_name' => 'TodosController',
+        ]);
     }
 
-    #[Route('add/{category}/{task}', name: 'add_todo')]
-    public function addTodo($category, $task, Request $request): RedirectResponse
+    #[Route('todo/add/{category}/{task}', name: 'add_todo')]
+    public function addTodo(string $category, string $task, Request $request): RedirectResponse
     {
         $session = $request->getSession();
-        if ($session->has('todos')) {
-            $todos = $session->get('todos');
-            if (isset($todos[$category])) {
-                $this->addFlash("error", "Le Todo exsist deja !");
-            } else {
-                $todos[$category] = $task;
-                $session->set('todos', $todos);
-                $this->addFlash('success', "Le TODO d'id $category a ete ajoute avec succes");
-            }
+        $todos = $session->get('todos', []);
+        if (isset($todos[$category])) {
+            $this->addFlash("error", "Le Todo existe déjà !");
         } else {
-            $this->addFlash("error", "La list des Todos viens n'est pas encore initialisee");
+            $todos[$category] = $task;
+            $session->set('todos', $todos);
+            $this->addFlash('success', "Le Todo a été ajouté avec succès");
         }
-        return $this->redirectToRoute('todo');
+        return $this->redirectToRoute('list_todo');
     }
 
-    #[Route('delete/{category}/{task}', name: 'delete_todo')]
-    public function deleteTodo($category, Request $request): RedirectResponse
+    #[Route('todo/delete/{category}', name: 'delete_todo')]
+    public function deleteTodo(string $category, Request $request): RedirectResponse
     {
         $session = $request->getSession();
-        if ($session->has('todos')) {
-            $todos = $session->get('todos');
-            if (isset($todos[$category])) {
-                unset($todos[$category]);
-                $session->set('todos', $todos);
-                $this->addFlash("success", "Le Todo a ete supprimer!");
-            } else {
-                $this->addFlash('error', "Le TODO d'id $category n'exist pas");
-            }
+        $todos = $session->get('todos', []);
+        if (isset($todos[$category])) {
+            unset($todos[$category]);
+            $session->set('todos', $todos);
+            $this->addFlash("success", "Le Todo a été supprimé avec succès");
         } else {
-            $this->addFlash("error", "La list des Todos viens n'est pas encore initialisee");
+            $this->addFlash('error', "Le Todo n'existe pas");
         }
-        return $this->redirectToRoute('todo');
+        return $this->redirectToRoute('list_todo');
     }
 
-    #[Route('edit/{category}/{ncategory}', name: 'edit_todo')]
-    public function editTodo($category, $ncategory, Request $request): RedirectResponse
+    #[Route('todo/edit/{category}/{newCategory}', name: 'edit_todo')]
+    public function editTodo(string $category, string $newCategory, Request $request): RedirectResponse
+    {
+        $session = $request->getSession();
+        $todos = $session->get('todos', []);
+
+        if (isset($todos[$category])) {
+            $todos[$newCategory] = $todos[$category];
+            unset($todos[$category]);
+            $session->set('todos', $todos);
+            $this->addFlash("success", "Le Todo a été modifié avec succès");
+        } else {
+            $this->addFlash('error', "Le Todo n'existe pas");
+        }
+        return $this->redirectToRoute('list_todo');
+    }
+
+    #[Route('todo/reset', name: 'todo_reset')]
+    public function resetTodo(Request $request): Response
     {
         $session = $request->getSession('todos');
-        if ($session->has('todos')) {
-            $todos = $session->get('todos');
-            if (isset($todos[$category])) {
-                $ncategory = str_replace('%20', ' ', $ncategory);
-                $todos[$category] = $ncategory;
-            }
-            $session->set('todos', $todos);
-            $this->addFlash("success", "Le Todo a ete modifier");
-        } else {
-            $this->addFlash('error', "Le TODO d'id $category n'exist pas");
-        }
-        return $this->redirectToRoute('todo');
+        $session->remove('todos');
+        $this->addFlash('success', "Le to-do a été réinitialiser");
+        return $this->redirectToRoute('list_todo');
     }
 }
