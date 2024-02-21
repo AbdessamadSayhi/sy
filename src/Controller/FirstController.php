@@ -8,10 +8,16 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class FirstController extends AbstractController
 {
-    #[Route('/first', name: 'app_first')]
-    public function index(): Response
+    #[Route('/first/{$nb}', name: 'app_first')]
+    public function index(int $nb): Response
     {
-        return $this->render('template.html.twig');
+        $notes = [];
+        for ($i = 0; $i < $nb; $i++) {
+            $notes[] = rand(0, 20);
+        }
+        return $this->render('first/index.html.twig', [
+            'notes' => $notes,
+        ]);
     }
 
     #[Route('date', name: 'date')]

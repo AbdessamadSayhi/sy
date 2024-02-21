@@ -13,8 +13,6 @@ class NewsLetterController extends AbstractController
     #[Route('subscribe', name: 'newsletter_subscribe')]
     public function index(): Response
     {
-        return $this->render('news_letter/index.html.twig', [
-            'controller_name' => 'NewsLetterController',
-        ]);
+        return $this->render('news_letter/index.html.twig');
     }
 }
