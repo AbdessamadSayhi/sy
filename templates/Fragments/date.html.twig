@@ -1,0 +1,5 @@
+<div class="alert alert-info">
+  {% set hour = "now"|date("G") %} {% if hour < 12 %} Good morning {% elseif
+  hour < 18 %} Good afternoon {% else %} Good evening {% endif %} it's
+  {{ "now"|date("Y-m-d H:i A") }}
+</div>

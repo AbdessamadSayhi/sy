@@ -13,4 +13,10 @@ class FirstController extends AbstractController
     {
         return $this->render('template.html.twig');
     }
+
+    #[Route('date', name: 'date')]
+    public function thisDate(): Response
+    {
+        return $this->render('fragments/date.html.twig');
+    }
 }

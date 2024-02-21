@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class TodosController extends AbstractController
 {
-    #[Route('todo', name: 'list_todo')]
+    #[Route('todo', name: 'todo')]
     public function index(Request $request): Response
     {
         $session = $request->getSession();
@@ -40,7 +40,7 @@ class TodosController extends AbstractController
             $session->set('todos', $todos);
             $this->addFlash('success', "Le Todo a été ajouté avec succès");
         }
-        return $this->redirectToRoute('list_todo');
+        return $this->redirectToRoute('todo');
     }
 
     #[Route('todo/delete/{category}', name: 'delete_todo')]
@@ -55,7 +55,7 @@ class TodosController extends AbstractController
         } else {
             $this->addFlash('error', "Le Todo n'existe pas");
         }
-        return $this->redirectToRoute('list_todo');
+        return $this->redirectToRoute('todo');
     }
 
     #[Route('todo/edit/{category}/{newCategory}', name: 'edit_todo')]
@@ -72,7 +72,7 @@ class TodosController extends AbstractController
         } else {
             $this->addFlash('error', "Le Todo n'existe pas");
         }
-        return $this->redirectToRoute('list_todo');
+        return $this->redirectToRoute('todo');
     }
 
     #[Route('todo/reset', name: 'todo_reset')]
@@ -81,6 +81,6 @@ class TodosController extends AbstractController
         $session = $request->getSession('todos');
         $session->remove('todos');
         $this->addFlash('success', "Le to-do a été réinitialiser");
-        return $this->redirectToRoute('list_todo');
+        return $this->redirectToRoute('todo');
     }
 }
